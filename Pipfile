@@ -5,6 +5,10 @@ name = "pypi"
 
 [packages]
 fastapi = "<=0.111.*"
+uvicorn = "*"
+jinja2 = "*"
+pydantic-settings = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
