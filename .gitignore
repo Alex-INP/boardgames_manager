@@ -2,3 +2,4 @@
 .idea/
 .venv/
 .env
+bg_manager.db

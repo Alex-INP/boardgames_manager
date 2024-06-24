@@ -3,7 +3,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     templates_dir: str = "templates"
-    db_name: str
+
+    database_url: str
+    echo_queries: bool
+
+    secret_key: str
 
     model_config = SettingsConfigDict(env_file=".env")
 
