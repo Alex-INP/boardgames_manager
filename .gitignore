@@ -1,5 +1,6 @@
-**/__pycache__
+__pycache__/
 .idea/
 .venv/
 .env
+.ruff_cache/
 bg_manager.db

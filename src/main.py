@@ -4,9 +4,6 @@ from src.index.router import router as index_router
 from src.points_tables.router import router as points_tables_router
 from src.auth.router import router as auth_router
 
-from .database import Base, engine
-
-Base.metadata.create_all(engine)
 
 app = FastAPI()
 

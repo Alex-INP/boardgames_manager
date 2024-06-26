@@ -19,21 +19,11 @@ router = APIRouter()
 
 @router.get("/create_db_data")
 async def cr_user(db: Annotated[Session, Depends(get_session)]):
-    role1 = models.UserRole(name="Admin")
-    db.add(role1)
-    db.commit()
-    db.refresh(role1)
-
-    role2 = models.UserRole(name="User")
-    db.add(role2)
-    db.commit()
-    db.refresh(role2)
-
     user = models.User(
         email="alex@mail.ru",
         username="alex",
         password="$2b$12$Ytvun5JZQKWmdo/A1DhZ6eVIw/KKq9ZAIkPpoqDsKdFmK7rnnbTZu",  # qwerty
-        role_id=role1.id,
+        role_id=1,
     )
 
     db.add(user)

@@ -16,7 +16,9 @@ class User(TimestampMixin, Base):
     username: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str] = mapped_column()
     is_active: Mapped[bool] = mapped_column(default=True)
-    role_id: Mapped[int] = mapped_column(ForeignKey("user_roles.id"))
+    role_id: Mapped[int] = mapped_column(
+        ForeignKey("user_roles.id", ondelete="SET NULL"), index=True
+    )
 
     filled_templates: Mapped[list[FilledTemplate]] = relationship(
         back_populates="creator"
@@ -43,9 +45,9 @@ class Token(TimestampMixin, Base):
     __tablename__ = "access_tokens"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    value: Mapped[str | None] = mapped_column()
+    value: Mapped[str] = mapped_column()
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), unique=True
+        ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True
     )
     user: Mapped[User] = relationship(back_populates="token")
     expires: Mapped[datetime | None] = mapped_column()

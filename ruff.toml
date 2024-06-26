@@ -1,0 +1,4 @@
+[lint.flake8-type-checking]
+# Add quotes around type annotations, if doing so would allow
+# an import to be moved into a type-checking block.
+quote-annotations = true
