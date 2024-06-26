@@ -3,7 +3,8 @@ from sqlalchemy import pool
 
 from alembic import context
 
-
+from src.auth import models as auth_models
+from src.points_tables import models as points_tables_models
 from src.database import Base
 
 

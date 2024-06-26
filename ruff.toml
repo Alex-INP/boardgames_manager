@@ -2,3 +2,6 @@
 # Add quotes around type annotations, if doing so would allow
 # an import to be moved into a type-checking block.
 quote-annotations = true
+
+[lint.per-file-ignores]
+"alembic/env.py" = ["F401"]
