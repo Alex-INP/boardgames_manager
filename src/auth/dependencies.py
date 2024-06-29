@@ -86,12 +86,13 @@ async def authenticated_only(
     except InvalidTokenError:
         raise UnauthorizedException()
 
-    user_id = (
-        db.query(models.User.id)
-        .filter(models.User.username == payload_username)
-        .scalar_subquery()
+    token = (
+        db.query(models.Token)
+        .filter_by(value=token)
+        .join(models.User)
+        .filter_by(username=payload_username)
+        .first()
     )
-    token = db.query(models.Token).filter_by(value=token, user_id=user_id).first()
     if not token:
         raise UnauthorizedException()
 
