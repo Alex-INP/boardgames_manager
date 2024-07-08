@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Request
-from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from .config import settings
+from fastapi.templating import Jinja2Templates
 
+from .config import settings
 
 router = APIRouter()
 

@@ -5,3 +5,6 @@ quote-annotations = true
 
 [lint.per-file-ignores]
 "alembic/env.py" = ["F401"]
+
+[lint]
+extend-select = ["I"]

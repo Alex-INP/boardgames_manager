@@ -6,17 +6,18 @@ Create Date: 2024-06-26 13:26:05.349595
 
 """
 
-import datetime
 from typing import Sequence, Union
 
+from sqlalchemy import DateTime, Integer, String, column, table
+
 from alembic import op
-from sqlalchemy import table, column, Integer, String, DateTime
+from src.utils import get_now_utc
 
 # revision identifiers, used by Alembic.
 revision: str = "401f1eddccf1"
 down_revision: Union[str, None] = "eb0f5867387d"
 branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = "eb0f5867387d"
 
 
 ur_table = table(
@@ -34,12 +35,12 @@ def upgrade() -> None:
             {
                 "id": 1,
                 "name": "Admin",
-                "created": datetime.datetime.now(),
+                "created": get_now_utc(),
             },
             {
                 "id": 2,
                 "name": "User",
-                "created": datetime.datetime.now(),
+                "created": get_now_utc(),
             },
         ],
     )

@@ -8,9 +8,9 @@ Create Date: 2024-06-26 13:19:06.409715
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "eb0f5867387d"
@@ -25,16 +25,16 @@ def upgrade() -> None:
         "templates",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(), nullable=False),
-        sa.Column("created", sa.DateTime(), nullable=False),
-        sa.Column("updated", sa.DateTime(), nullable=True),
+        sa.Column("created", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated", sa.DateTime(timezone=True), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
         "user_roles",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(), nullable=False),
-        sa.Column("created", sa.DateTime(), nullable=False),
-        sa.Column("updated", sa.DateTime(), nullable=True),
+        sa.Column("created", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated", sa.DateTime(timezone=True), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
@@ -42,8 +42,8 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("value", sa.String(), nullable=False),
         sa.Column("template_id", sa.Integer(), nullable=False),
-        sa.Column("created", sa.DateTime(), nullable=False),
-        sa.Column("updated", sa.DateTime(), nullable=True),
+        sa.Column("created", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(["template_id"], ["templates.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -58,8 +58,8 @@ def upgrade() -> None:
         sa.Column("password", sa.String(), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column("role_id", sa.Integer(), nullable=False),
-        sa.Column("created", sa.DateTime(), nullable=False),
-        sa.Column("updated", sa.DateTime(), nullable=True),
+        sa.Column("created", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(["role_id"], ["user_roles.id"], ondelete="SET NULL"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("email"),
@@ -71,9 +71,9 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("value", sa.String(), nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
-        sa.Column("expires", sa.DateTime(), nullable=True),
-        sa.Column("created", sa.DateTime(), nullable=False),
-        sa.Column("updated", sa.DateTime(), nullable=True),
+        sa.Column("expires", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("created", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -85,8 +85,8 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("creator_id", sa.Integer(), nullable=False),
         sa.Column("template_id", sa.Integer(), nullable=False),
-        sa.Column("created", sa.DateTime(), nullable=False),
-        sa.Column("updated", sa.DateTime(), nullable=True),
+        sa.Column("created", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(["creator_id"], ["users.id"], ondelete="SET NULL"),
         sa.ForeignKeyConstraint(["template_id"], ["templates.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
@@ -130,8 +130,8 @@ def upgrade() -> None:
         sa.Column("value", sa.Integer(), nullable=False),
         sa.Column("filled_template_id", sa.Integer(), nullable=False),
         sa.Column("player_id", sa.Integer(), nullable=False),
-        sa.Column("created", sa.DateTime(), nullable=False),
-        sa.Column("updated", sa.DateTime(), nullable=True),
+        sa.Column("created", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(
             ["filled_template_id"], ["filled_templates.id"], ondelete="CASCADE"
         ),

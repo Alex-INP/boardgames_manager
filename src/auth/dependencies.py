@@ -1,96 +1,79 @@
 from typing import Annotated
 
-import jwt
-from fastapi import Depends, HTTPException, Form
+from fastapi import Depends, Form, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
-from sqlalchemy import exists
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
-from .config import settings
-from .exceptions import (
-    UnauthorizedException,
-    RegistrationException,
-    SessionExpiredException,
-)
-from .schemas import User, UserCreate
-from .utils import get_hashed_value, is_token_expired
+from src.auth import models
 from src.dependencies import get_session
 
-from src.auth import models
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token", auto_error=False)
-
-
-async def get_current_user(
-    db: Annotated[Session, Depends(get_session)],
-    token: Annotated[str, Depends(oauth2_scheme)],
-):
-    try:
-        payload = jwt.decode(
-            token, settings.secret_key, algorithms=[settings.token_hash_alg]
-        )
-        payload_username: str = payload.get("sub")
-        if payload_username is None:
-            raise UnauthorizedException()
-    except InvalidTokenError:
-        raise SessionExpiredException()
-
-    user = models.User.get_by_username(db, payload_username)
-    if user is None:
-        raise UnauthorizedException()
-    return user
+from .exceptions import (
+    RegistrationException,
+    SessionExpiredException,
+    UnauthorizedException,
+)
+from .schemas import UserCreate
+from .utils import get_hashed_value, get_token_payload, is_token_expired
 
 
-async def get_active_user(user: Annotated[User, Depends(get_current_user)]):
-    if not user.is_active:
-        raise HTTPException(status_code=400, detail="User is not active")
-    return user
-
-
-async def check_not_exists(
-    db: Annotated[Session, Depends(get_session)],
+async def prepare_user_create_data(
     username: Annotated[str, Form()],
     password: Annotated[str, Form()],
     email: Annotated[str, Form()],
 ):
     hashed_password = get_hashed_value(password)
     form_data = UserCreate(username=username, password=hashed_password, email=email)
+    return form_data
 
-    username_exists = db.query(
-        exists().where(models.User.username == form_data.username)
-    ).scalar()
+
+async def check_not_exists(
+    db: Annotated[Session, Depends(get_session)],
+    form_data: Annotated[UserCreate, Depends(prepare_user_create_data)],
+):
+    username_exists, email_exists = db.query(
+        db.query(
+            db.query(models.User).filter_by(username=form_data.username).exists()
+        ).subquery(),
+        db.query(
+            db.query(models.User).filter_by(email=form_data.email).exists()
+        ).subquery(),
+    ).first()
+
+    error = None
     if username_exists:
-        raise RegistrationException(f"User {form_data.username} already exists")
+        error = f"Username {form_data.username} already in use."
 
-    email_exists = db.query(
-        exists().where(models.User.email == form_data.email)
-    ).scalar()
     if email_exists:
-        raise RegistrationException(f"Email {form_data.email} already in use")
+        email_err_msg = f"Email {form_data.email} already in use."
+        error = f"{error} {email_err_msg}" if error else email_err_msg
+
+    if error:
+        raise RegistrationException(error)
 
     return form_data
 
 
-async def authenticated_only(
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token", auto_error=False)
+
+
+async def auth_only(
     db: Annotated[Session, Depends(get_session)],
     token: Annotated[str, Depends(oauth2_scheme)],
-):
+) -> models.User:
     try:
-        payload = jwt.decode(
-            token, settings.secret_key, algorithms=[settings.token_hash_alg]
-        )
-        payload_username: str = payload.get("sub")
-        if payload_username is None:
-            raise UnauthorizedException()
+        payload = get_token_payload(token)
+    except ValidationError:
+        raise UnauthorizedException()
     except InvalidTokenError:
         raise UnauthorizedException()
 
-    token = (
-        db.query(models.Token)
+    token, user = (
+        db.query(models.Token, models.User)
         .filter_by(value=token)
         .join(models.User)
-        .filter_by(username=payload_username)
+        .filter_by(username=payload.name)
         .first()
     )
     if not token:
@@ -98,3 +81,13 @@ async def authenticated_only(
 
     if is_token_expired(token.expires):
         raise SessionExpiredException()
+
+    return user
+
+
+async def auth_and_active_only(
+    user: Annotated[models.User, Depends(auth_only)],
+) -> models.User:
+    if not user.is_active:
+        raise HTTPException(status_code=400, detail="User is not active")
+    return user

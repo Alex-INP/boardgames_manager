@@ -1,6 +1,8 @@
-from pydantic_settings import BaseSettings
-from src.config import settings as global_settings
 from pathlib import PurePath
+
+from pydantic_settings import BaseSettings
+
+from src.config import settings as global_settings
 
 
 class Settings(BaseSettings):

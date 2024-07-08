@@ -1,12 +1,9 @@
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-
 from src.auth import models as auth_models
-from src.points_tables import models as points_tables_models
 from src.database import Base
-
+from src.points_tables import models as points_tables_models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

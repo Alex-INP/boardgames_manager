@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship, Mapped, mapped_column, Session
+from sqlalchemy import DateTime, ForeignKey
+from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 
-from src.models import TimestampMixin
 from src.database import Base
+from src.models import TimestampMixin
 from src.points_tables.models import FilledTemplate, ResultForHeader
 
 
@@ -28,17 +28,12 @@ class User(TimestampMixin, Base):
     )
     token: Mapped["Token"] = relationship(back_populates="user")
 
-    @classmethod
-    def get_by_username(cls, db: Session, username: str):
-        return db.query(cls).filter(cls.username == username).first()
-
 
 class UserRole(TimestampMixin, Base):
     __tablename__ = "user_roles"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-
-    name: Mapped[str] = mapped_column()
+    name: Mapped[str] = mapped_column(unique=True)
 
 
 class Token(TimestampMixin, Base):
@@ -50,10 +45,10 @@ class Token(TimestampMixin, Base):
         ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True
     )
     user: Mapped[User] = relationship(back_populates="token")
-    expires: Mapped[datetime | None] = mapped_column()
+    expires: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     @classmethod
-    def insert_or_update(cls, db: Session, user_id: int, value: str, expires):
+    def insert_or_update(cls, db: Session, user_id: int, value: str, expires: datetime):
         token = db.query(cls).filter_by(user_id=user_id).first()
         if token:
             token.value = value

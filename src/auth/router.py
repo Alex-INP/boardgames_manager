@@ -1,18 +1,19 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.dependencies import get_session
+from src.utils import get_now_utc
 
 from . import models
 from .config import settings
-from .dependencies import check_not_exists, authenticated_only
-from .schemas import TokenResponse, UserCreate
+from .dependencies import auth_only, check_not_exists
+from .schemas import TokenPayload, TokenResponse, UserCreate
 from .utils import authenticate, create_token
-
 
 router = APIRouter()
 
@@ -45,14 +46,16 @@ async def register_user(
     db: Annotated[Session, Depends(get_session)],
     form_data: Annotated[UserCreate, Depends(check_not_exists)],
 ):
-    role = db.query(models.UserRole).filter(models.UserRole.name == "User").first()
-    user = models.User(role_id=role.id, **form_data.model_dump())
+    role_id = db.scalar(
+        select(models.UserRole.id).filter(models.UserRole.name == "User")
+    )
+    user = models.User(role_id=role_id, **form_data.model_dump())
     db.add(user)
     db.commit()
     return "Created"
 
 
-@router.get("/need_auth", dependencies=[Depends(authenticated_only)])
+@router.get("/need_auth", dependencies=[Depends(auth_only)])
 def need_auth_route():
     return "OK"
 
@@ -67,10 +70,13 @@ async def token(
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
     expire_delta = timedelta(minutes=settings.token_expire_minutes)
-    expire_time = datetime.now() + expire_delta
+    expire_time = get_now_utc() + expire_delta
 
-    access_token = create_token(payload={"sub": user.username, "exp": expire_time})
+    payload = TokenPayload(name=user.username, exp=expire_time)
+    access_token = create_token(payload=payload.model_dump())
+
     models.Token.insert_or_update(db, user.id, access_token, expire_time)
+
     return TokenResponse(access_token=access_token)
 
 

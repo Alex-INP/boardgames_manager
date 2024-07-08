@@ -1,9 +1,8 @@
 from fastapi import FastAPI
 
+from src.auth.router import router as auth_router
 from src.index.router import router as index_router
 from src.points_tables.router import router as points_tables_router
-from src.auth.router import router as auth_router
-
 
 app = FastAPI()
 

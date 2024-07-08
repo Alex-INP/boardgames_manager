@@ -1,11 +1,10 @@
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, ForeignKey, Table
-from sqlalchemy.orm import relationship, mapped_column, Mapped
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from src.database import Base
-
 from src.models import TimestampMixin
-
 
 if TYPE_CHECKING:
     from src.auth.models import User
