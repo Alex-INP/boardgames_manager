@@ -4,6 +4,7 @@ from fastapi import Depends, Form, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
 from pydantic import ValidationError
+from sqlalchemy import exists, select, union_all
 from sqlalchemy.orm import Session
 
 from src.auth import models
@@ -32,15 +33,19 @@ async def check_not_exists(
     db: Annotated[Session, Depends(get_session)],
     form_data: Annotated[UserCreate, Depends(prepare_user_create_data)],
 ):
-    username_exists, email_exists = db.query(
-        db.query(
-            db.query(models.User).filter_by(username=form_data.username).exists()
-        ).subquery(),
-        db.query(
-            db.query(models.User).filter_by(email=form_data.email).exists()
-        ).subquery(),
-    ).first()
+    res = (
+        db.execute(
+            union_all(
+                select(exists().where(models.User.username == form_data.username)),
+                select(exists().where(models.User.email == form_data.email)),
+            )
+        )
+        .scalars()
+        .all()
+    )
 
+    username_exists = res[0]
+    email_exists = res[1]
     error = None
     if username_exists:
         error = f"Username {form_data.username} already in use."
