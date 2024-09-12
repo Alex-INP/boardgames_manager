@@ -4,3 +4,4 @@ __pycache__/
 .env
 .ruff_cache/
 bg_manager.db
+test_db.db

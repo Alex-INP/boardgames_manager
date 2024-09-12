@@ -19,6 +19,7 @@ class User(TimestampMixin, Base):
     role_id: Mapped[int] = mapped_column(
         ForeignKey("user_roles.id", ondelete="SET NULL"), index=True
     )
+    role: Mapped["UserRole"] = relationship(backref="users")
 
     filled_templates: Mapped[list[FilledTemplate]] = relationship(
         back_populates="creator"

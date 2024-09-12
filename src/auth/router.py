@@ -18,27 +18,27 @@ from .utils import authenticate, create_token
 router = APIRouter()
 
 
-@router.get("/create_db_data")
-async def cr_user(db: Annotated[Session, Depends(get_session)]):
-    user = models.User(
-        email="alex@mail.ru",
-        username="alex",
-        password="$2b$12$Ytvun5JZQKWmdo/A1DhZ6eVIw/KKq9ZAIkPpoqDsKdFmK7rnnbTZu",  # qwerty
-        role_id=1,
-    )
-
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
-    token = models.Token(
-        user_id=user.id,
-        value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGV4IiwiZXhwIjoxNzE5MjI2OTM0fQ.rDj3iU0CzfUXxegqPTrIS-dK1wMcIL9sdbns-Ue2F3E",
-    )
-    db.add(token)
-    db.commit()
-    db.refresh(token)
-    return "OK"
+# @router.get("/create_db_data")
+# async def cr_user(db: Annotated[Session, Depends(get_session)]):
+#     user = models.User(
+#         email="alex@mail.ru",
+#         username="alex",
+#         password="$2b$12$Ytvun5JZQKWmdo/A1DhZ6eVIw/KKq9ZAIkPpoqDsKdFmK7rnnbTZu",  # qwerty
+#         role_id=1,
+#     )
+#
+#     db.add(user)
+#     db.commit()
+#     db.refresh(user)
+#
+#     token = models.Token(
+#         user_id=user.id,
+#         value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGV4IiwiZXhwIjoxNzE5MjI2OTM0fQ.rDj3iU0CzfUXxegqPTrIS-dK1wMcIL9sdbns-Ue2F3E",
+#     )
+#     db.add(token)
+#     db.commit()
+#     db.refresh(token)
+#     return "OK"
 
 
 @router.post("/register_user")
@@ -60,6 +60,7 @@ def need_auth_route():
     return "OK"
 
 
+# ToDo должно работать с нескольких устройств
 @router.post("/token", response_model=TokenResponse)
 async def token(
     db: Annotated[Session, Depends(get_session)],

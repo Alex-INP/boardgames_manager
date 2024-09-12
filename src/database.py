@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from .config import settings
@@ -10,11 +10,6 @@ engine = create_engine(
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# for sqlLite
-session = SessionLocal()
-session.execute(text("pragma foreign_keys=on"))
-session.close()
 
 
 class Base(DeclarativeBase):

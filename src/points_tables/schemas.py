@@ -13,7 +13,7 @@ class Header(HeaderBase):
     id: int
     template_id: int
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
@@ -29,5 +29,5 @@ class Template(TemplateBase):
     id: int
     headers: list[Header] = []
 
-    class Config:
+    class ConfigDict:
         from_attributes = True

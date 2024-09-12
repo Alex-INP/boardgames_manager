@@ -8,3 +8,7 @@
 
 ## Celery
 Запуск: `celery -A src worker`
+
+## Tests
+Запуск: `pytest .\tests\auth\test_dependencies.py::test_check_not_exists -s`
+`-s` для захвата вывода.
