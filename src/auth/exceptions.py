@@ -2,17 +2,22 @@ from fastapi import HTTPException, status
 
 
 class UnauthorizedException(HTTPException):
-    default_message = "Invalid authentication credentials"
+    DEFAULT_MESSAGE = "Invalid authentication credentials"
+    DEFAULT_REDIRECT_LOCATION = "/index"
 
     def __init__(self, message=None, redirect=False, redirect_location=None):
         status_code = status.HTTP_401_UNAUTHORIZED
         headers = {"WWW-Authenticate": "Bearer"}
         if redirect:
             status_code = status.HTTP_302_FOUND
-            headers["Location"] = redirect_location if redirect_location else "/index"
+            headers["Location"] = (
+                redirect_location
+                if redirect_location
+                else self.DEFAULT_REDIRECT_LOCATION
+            )
 
         super().__init__(
-            detail=message if message else self.default_message,
+            detail=message if message else self.DEFAULT_MESSAGE,
             status_code=status_code,
             headers=headers,
         )
