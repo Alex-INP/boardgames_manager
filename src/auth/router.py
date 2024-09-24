@@ -73,7 +73,7 @@ async def token(
     expire_delta = timedelta(minutes=settings.token_expire_minutes)
     expire_time = get_now_utc() + expire_delta
 
-    payload = TokenPayload(name=user.username, exp=expire_time)
+    payload = TokenPayload(sub=user.username, exp=expire_time)
     access_token = create_token(payload=payload.model_dump())
 
     models.Token.insert_or_update(db, user.id, access_token, expire_time)

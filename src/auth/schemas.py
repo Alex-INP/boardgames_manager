@@ -15,5 +15,5 @@ class TokenResponse(BaseModel):
 
 
 class TokenPayload(BaseModel):
-    name: str
+    sub: str
     exp: datetime

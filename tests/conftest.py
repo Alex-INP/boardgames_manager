@@ -53,3 +53,22 @@ def db(prepare_database):
     session = scoped_session_factory()
     yield session
     session.close()
+
+
+# ToDo тесты не смогут выполняться асинхронно без ошибок в не изолированном окружении
+class SetConfig:
+    old_config = None
+    target = None
+
+    def __init__(self, target, **kwargs):
+        self.target = target
+        self.old_config = target.model_dump()
+        self.new_config = kwargs
+
+    def __enter__(self):
+        for k, v in self.new_config.items():
+            setattr(self.target, k, v)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        for k, v in self.old_config.items():
+            setattr(self.target, k, v)

@@ -43,4 +43,4 @@ def get_token_payload(token: str) -> TokenPayload:
     payload = jwt.decode(
         token, settings.secret_key, algorithms=[settings.token_hash_alg]
     )
-    return TokenPayload(name=payload.get("name"), exp=payload.get("exp"))
+    return TokenPayload(sub=payload.get("sub"), exp=payload.get("exp"))

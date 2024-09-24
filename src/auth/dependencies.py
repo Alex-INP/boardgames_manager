@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends, Form, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from jwt import InvalidTokenError
+from jwt import ExpiredSignatureError, InvalidTokenError
 from pydantic import ValidationError
 from sqlalchemy import exists, select, union_all
 from sqlalchemy.orm import Session
@@ -69,20 +69,21 @@ async def auth_only(
 ) -> models.User:
     try:
         payload = get_token_payload(token)
-    except ValidationError:
-        raise UnauthorizedException()
-    except InvalidTokenError:
+    except (ValidationError, InvalidTokenError, ExpiredSignatureError):
         raise UnauthorizedException()
 
-    token, user = (
+    res = (
         db.query(models.Token, models.User)
         .filter_by(value=token)
         .join(models.User)
-        .filter_by(username=payload.name)
+        .filter_by(username=payload.sub)
         .first()
     )
-    if not token:
+
+    if not res:
         raise UnauthorizedException()
+
+    token, user = res[0], res[1]
 
     if is_token_expired(token.expires):
         raise SessionExpiredException()
